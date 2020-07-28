@@ -1,6 +1,0 @@
-# import Error from "../../shared.graphql"
-
-type Mutation {
-  clockIn(payRate: Float!): [Error!]
-  clockOut: [Error!]
-}

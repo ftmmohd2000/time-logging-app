@@ -1,44 +1,89 @@
-import * as connectRedis from "connect-redis";
-import * as RateLimit from "express-rate-limit";
-import * as session from "express-session";
+import connectRedis from "connect-redis";
+import RateLimit from "express-rate-limit";
+import session from "express-session";
 import { GraphQLServer } from "graphql-yoga";
-import * as RedisStore from "rate-limit-redis";
-import { redisSessionPrefix } from "../constants";
-import { confirmEmail } from "../routes/confirmEmail";
-import { createTypeormConn } from "../utils/createTypeormConnection";
-import { genSchema } from "../utils/generateSchema";
+import RedisStore from "rate-limit-redis";
+import { buildSchema } from "type-graphql";
+import { redisSessionPrefix, userSessionPrefix } from "../constants";
+import { User } from "../entity/User";
 import { redis } from "./redis";
-import { TimePeriod } from "../entity/TimePeriod";
+import resolvers from "../modules";
+import { createTypeormConn } from "../utils/createTypeormConn";
+import passport from "passport";
+import { googleAuthRouter } from "../routers/googleAuth";
+import { customAuth } from "../auth/customAuth";
+import { githubAuthRouter } from "../routers/githubAuth";
+import { twitterAuthRouter } from "../routers/twitterAuth";
+import { facebookAuthRouter } from "../routers/facebookAuth";
 
 export const startServer = async () => {
+  // create schema using resolvers
+  const schema = await buildSchema({
+    resolvers: resolvers as any,
+    authChecker: customAuth
+  });
+
+  // create server using schema
   const server = new GraphQLServer({
-    schema: genSchema() as any,
-    context: ({ request }) => ({
-      redis,
-      url: request.protocol + "://" + request.get("host"),
-      session: request.session,
-      req: request
-    })
+    schema: schema as any,
+    context: async ({ request, response }) => {
+      let user: User | undefined;
+
+      if (request.session) {
+        if (request.session.passport)
+          // OAuth login
+          user = await User.findOne({
+            where: { id: request.session.passport.user }
+          });
+        // manual login
+        else
+          user = await User.findOne({
+            where: { id: request.session!.userId }
+          });
+      }
+
+      let sessionIDs: string[];
+      if (user) {
+        sessionIDs = await redis.lrange(
+          `${userSessionPrefix}${user.id}`,
+          0,
+          -1
+        );
+      } else {
+        sessionIDs = [];
+      }
+
+      return {
+        redis,
+        url: request.protocol + "://" + request.get("host"),
+        req: request,
+        res: response,
+        user,
+        sessionIDs
+      };
+    }
   });
 
-  const store = new (connectRedis(session))({
-    client: redis as any,
-    prefix: redisSessionPrefix
-  });
-
+  // rate limit server
   server.express.use(
     RateLimit({
       store: new RedisStore({
-        client: redis as any
+        client: redis
       }),
-      windowMs: 15 * 60 * 1000,
+      windowMs: 15 * 60 * 100,
       max: 100
     })
   );
 
+  const redisStore = connectRedis(session);
+
+  // connect store to redis
   server.express.use(
     session({
-      store,
+      store: new redisStore({
+        client: redis,
+        prefix: redisSessionPrefix
+      }),
       name: "qid",
       secret: process.env.SESSION_SECRET as string,
       resave: false,
@@ -50,18 +95,26 @@ export const startServer = async () => {
       }
     })
   );
+
+  server.express.use(passport.initialize());
+  server.express.use(passport.session());
+
+  server.express.use(googleAuthRouter);
+  server.express.use(githubAuthRouter);
+  server.express.use(twitterAuthRouter);
+
+  // enable cors from frontend
   const cors = {
     credentials: true,
     origin: process.env.FRONTEND_HOST as string
   };
 
-  server.express.get("/confirm/:id", confirmEmail);
-
+  // connect to database
   await createTypeormConn();
 
   const port = process.env.PORT;
   const app = await server.start({ port, cors });
   console.log(`Server is running on localhost:${port}`);
-  TimePeriod.create({});
+
   return app;
 };

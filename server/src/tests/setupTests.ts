@@ -1,6 +1,6 @@
 import { startServer } from "../instances/server";
 import { AddressInfo } from "net";
-import 'dotenv/config'
+import "dotenv/config";
 
 export default async () => {
   if (!process.env.TEST_HOST) {

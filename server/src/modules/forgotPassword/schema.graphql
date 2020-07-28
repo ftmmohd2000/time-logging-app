@@ -1,5 +1,0 @@
-#import Error from "../../shared.graphql"
-
-type Mutation {
-  forgotPassword(newPassword: String!): [Error!]
-}

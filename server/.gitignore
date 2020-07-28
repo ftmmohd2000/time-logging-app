@@ -1,8 +1,7 @@
-.idea/
 .vscode/
 node_modules/
 build/
-tmp/
-temp/
-dump.rdb
-.env*
+/src/config/
+
+*.rdb
+*.error

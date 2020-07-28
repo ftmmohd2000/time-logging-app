@@ -1,25 +1,27 @@
-import * as rp from "request-promise";
+import rp from "request-promise";
+import { RegisterInputType } from "../modules/user/register/RegisterInputType";
 
-const registerMutation = (email: string, password: string) => `
-  mutation {
-    register(email:"${email}", password:"${password}"){
-      path
-      message
-    }
+const registerMutation = ({
+  email,
+  age,
+  firstName,
+  lastName,
+  password,
+  role
+}: RegisterInputType) => `
+  mutation{
+    register(data:{role:"${role}",firstName:"${firstName}",lastName:"${lastName}",email:"${email}",password:"${password}", age:${age}})
   }
 `;
 
 const loginMutation = (email: string, password: string) => `
-  mutation {
-    login(email:"${email}", password:"${password}"){
-      path
-      message
-    }
+  mutation{
+    login(email:"${email}", password:"${password}")
   }
 `;
 
 const logoutAllMutation = () => `
-  mutation {
+  mutation{
     logoutAll
   }
 `;
@@ -31,38 +33,28 @@ const logoutMutation = () => `
 `;
 
 const meQuery = () => `
-  query {
+  {
     me{
-      email
       id
+      name
+      lastName
+      firstName
+      email
+      age
+      role
     }
   }
 `;
 
-const forgotPasswordMutation = (newPassword: string, key: string) => `
-  mutation {
-    forgotPassword(newPassword:${newPassword},key:${key}){
-      path
-      message
-    }
-  }
+const forgotPasswordMutation = (email: string) => `
+{
+	forgotPassword(email:"${email}")  
+}
 `;
 
-const clockInMutation = (payRate: number) => `
+const changePasswordMutation = (password: string, token: string) => `
   mutation {
-    clockIn(payRate:${payRate}){
-      path
-      message
-    }
-  }
-`;
-
-const clockOutMutation = () => `
-  mutation {
-    clockOut{
-      path
-      message
-    }
+    changePassword(data:{token:"${token}",password:"${password}"})
   }
 `;
 
@@ -82,10 +74,33 @@ export class TestClient {
     };
   }
 
-  async register(email: string, password: string) {
+  async register({
+    email,
+    age,
+    firstName,
+    lastName,
+    password,
+    role
+  }: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    age: number;
+    role: string;
+  }) {
     return rp.post(this.url, {
       ...this.options,
-      body: { query: registerMutation(email, password) }
+      body: {
+        query: registerMutation({
+          role,
+          email,
+          password,
+          firstName,
+          lastName,
+          age
+        })
+      }
     });
   }
 
@@ -114,26 +129,20 @@ export class TestClient {
     });
   }
 
-  async forgotPassword(newPassWord: string, key: string) {
+  async forgotPassword(email: string) {
     return rp.post(this.url, {
       ...this.options,
-      body: { query: forgotPasswordMutation(newPassWord, key) }
+      body: { query: forgotPasswordMutation(email) }
     });
   }
 
-  async clockIn(payRate: number) {
+  async changePassword(newPassword: string, token: string) {
     return rp.post(this.url, {
       ...this.options,
-      body: { query: clockInMutation(payRate) }
+      body: { query: changePasswordMutation(newPassword, token) }
     });
   }
 
-  async clockOut() {
-    return rp.post(this.url, {
-      ...this.options,
-      body: { query: clockOutMutation() }
-    });
-  }
   setCookies(newValue: boolean) {
     this.options.withCredentials = newValue;
   }
