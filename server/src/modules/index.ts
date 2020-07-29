@@ -8,8 +8,15 @@ const folders = readdirSync(__dirname);
 folders.forEach((folder) => {
   if (folder === "index.ts") return;
 
-  const { default: resolverList }: any = require(join(__dirname, folder));
-  resolvers.push(...resolverList);
+  const files = readdirSync(join(__dirname, folder));
+
+  files.forEach((file) => {
+    if (!file.endsWith(".ts")) return;
+
+    const { default: resolver }: any = require(join(__dirname, folder, file));
+
+    resolvers.push(resolver);
+  });
 });
 
 export default resolvers;
