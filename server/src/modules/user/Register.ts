@@ -7,14 +7,13 @@ class RegisterResolver {
   @Mutation(() => Boolean, { nullable: true })
   async register(
     @Arg("data")
-    { firstName, lastName, email, password, age, role }: RegisterInputType
+    { firstName, lastName, email, password }: RegisterInputType
   ): Promise<boolean | null> {
     await User.create({
       firstName,
       lastName,
       email,
-      password,
-      age
+      password
     }).save();
 
     return true;

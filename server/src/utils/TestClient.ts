@@ -3,14 +3,12 @@ import { RegisterInputType } from "../modules/user/register/RegisterInputType";
 
 const registerMutation = ({
   email,
-  age,
   firstName,
   lastName,
-  password,
-  role
+  password
 }: RegisterInputType) => `
   mutation{
-    register(data:{role:"${role}",firstName:"${firstName}",lastName:"${lastName}",email:"${email}",password:"${password}", age:${age}})
+    register(data:{firstName:"${firstName}",lastName:"${lastName}",email:"${email}",password:"${password}"})
   }
 `;
 
@@ -40,8 +38,6 @@ const meQuery = () => `
       lastName
       firstName
       email
-      age
-      role
     }
   }
 `;
@@ -76,29 +72,24 @@ export class TestClient {
 
   async register({
     email,
-    age,
     firstName,
     lastName,
-    password,
-    role
+    password
   }: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
-    age: number;
     role: string;
   }) {
     return rp.post(this.url, {
       ...this.options,
       body: {
         query: registerMutation({
-          role,
           email,
           password,
           firstName,
-          lastName,
-          age
+          lastName
         })
       }
     });

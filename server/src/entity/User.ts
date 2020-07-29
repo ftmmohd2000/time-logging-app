@@ -7,22 +7,21 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  PrimaryColumn
+  PrimaryGeneratedColumn,
+  OneToMany
 } from "typeorm";
-import { v4 as uuid } from "uuid";
+import { Clock } from "./Clock";
 
 @ObjectType()
 @Entity("users")
 export class User extends BaseEntity {
   @Field(() => ID)
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
   @Column({ unique: true })
   email: string;
-
-  private tempPassword: string;
 
   @Column("text", { nullable: true })
   password: string;
@@ -35,22 +34,24 @@ export class User extends BaseEntity {
   @Column()
   lastName: string;
 
+  @Field(() => [Clock])
+  async clocks(@Root() { id: userId }: User) {
+    return Clock.find({ where: { userId } });
+  }
+
+  @Column({ default: process.env.NODE_ENV === "development" })
+  confirmed: boolean;
+
+  private tempPassword: string;
+
   @Field()
   name(@Root() parent: User): string {
     return `${parent.firstName} ${parent.lastName}`;
   }
 
-  @Field()
-  @Column("int", { nullable: true })
-  age: number;
-
-  @Column({ default: process.env.NODE_ENV === "development" })
-  confirmed: boolean;
-
   @BeforeInsert()
-  async generatePasswordAndHash() {
+  async hashPasswordOnInsert() {
     if (this.password) this.password = await hash(this.password, 12);
-    this.id = uuid();
   }
 
   @AfterLoad()

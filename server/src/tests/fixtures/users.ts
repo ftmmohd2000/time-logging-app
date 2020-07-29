@@ -5,7 +5,6 @@ export interface IUser {
   password: string;
   firstName: string;
   lastName: string;
-  age: number;
   role: number;
 }
 
@@ -14,6 +13,5 @@ export const createFakeUser = (role: number): IUser => ({
   password: faker.internet.password(),
   lastName: faker.name.lastName(),
   firstName: faker.name.firstName(),
-  age: faker.random.number(100),
   role
 });

@@ -1,4 +1,4 @@
-import { IsEmail, IsPositive, Length } from "class-validator";
+import { IsEmail, Length } from "class-validator";
 import { Field, InputType } from "type-graphql";
 import { PasswordInputType } from "../shared/PasswordInputType";
 
@@ -14,14 +14,7 @@ export class RegisterInputType extends PasswordInputType {
   @Field()
   email: string;
 
-  @IsPositive()
-  @Field()
-  age: number;
-
   @Length(7)
   @Field()
   password: string;
-
-  @Field({ nullable: true })
-  role: string;
 }

@@ -12,9 +12,6 @@ import { createTypeormConn } from "../utils/createTypeormConn";
 import passport from "passport";
 import { googleAuthRouter } from "../routers/googleAuth";
 import { customAuth } from "../auth/customAuth";
-import { githubAuthRouter } from "../routers/githubAuth";
-import { twitterAuthRouter } from "../routers/twitterAuth";
-import { facebookAuthRouter } from "../routers/facebookAuth";
 
 export const startServer = async () => {
   // create schema using resolvers
@@ -100,8 +97,6 @@ export const startServer = async () => {
   server.express.use(passport.session());
 
   server.express.use(googleAuthRouter);
-  server.express.use(githubAuthRouter);
-  server.express.use(twitterAuthRouter);
 
   // enable cors from frontend
   const cors = {
