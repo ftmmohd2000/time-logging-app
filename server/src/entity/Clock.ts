@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Field, ID, ObjectType, Root } from "type-graphql";
+import { Field, ID, ObjectType, Root, Int } from "type-graphql";
 import {
   BaseEntity,
   BeforeInsert,
@@ -11,7 +11,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { User } from "./User";
 
-@Entity("clocks", { orderBy: { start: "ASC" } })
+@Entity("clocks")
 @ObjectType()
 export class Clock extends BaseEntity {
   @Field(() => ID)
@@ -22,13 +22,11 @@ export class Clock extends BaseEntity {
   @Column()
   payRate: number;
 
-  @Field()
   @Column("bigint")
   start: number;
 
-  @Field()
-  @Column("bigint")
-  end: number;
+  @Column("bigint", { nullable: true, default: null })
+  end: number | undefined;
 
   @Column()
   userId: string;

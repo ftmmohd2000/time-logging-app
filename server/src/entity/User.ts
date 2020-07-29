@@ -39,6 +39,9 @@ export class User extends BaseEntity {
     return Clock.find({ where: { userId } });
   }
 
+  @Column("boolean", { default: false })
+  clockedIn: boolean;
+
   @Column({ default: process.env.NODE_ENV === "development" })
   confirmed: boolean;
 
