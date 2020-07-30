@@ -5,8 +5,7 @@ jobs:
       - image: circleci/node:12.18.2
     steps:
       - checkout
-      - run: cd server
-      - run: yarn
+      - run: cd server && yarn
   test:
     docker:
       - image: circleci/node:12.18.2
