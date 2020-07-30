@@ -34,6 +34,9 @@ export class Clock extends BaseEntity {
   @ManyToOne(() => User, (user) => user.clocks)
   user: User;
 
+  @Column("boolean", { default: false })
+  forgot: boolean;
+
   @Field(() => String)
   startTime(@Root() { start }: Clock) {
     return moment(parseInt(start + "", 10)).format(
