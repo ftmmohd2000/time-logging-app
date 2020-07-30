@@ -22,9 +22,11 @@ export class Clock extends BaseEntity {
   @Column()
   payRate: number;
 
+  @Field(() => Int)
   @Column("bigint")
   start: number;
 
+  @Field(() => Int)
   @Column("bigint", { nullable: true, default: null })
   end: number | undefined;
 
