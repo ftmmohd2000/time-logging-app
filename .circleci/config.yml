@@ -11,8 +11,7 @@ jobs:
       - image: circleci/node:12.18.2
     steps:
       - checkout
-      - run: cd server
-      - run: yarn test
+      - run: cd server && yarn test
 
 workflows:
   build_and_test:
