@@ -1,0 +1,20 @@
+jobs:
+  build:
+    docker:
+      - image: circleci/node:12.18.2
+    steps:
+      - checkout
+      - run: cd server
+  test:
+    docker:
+      - image: circleci/node:12.18.2
+    steps:
+      - checkout
+      - run: cd server
+      - run: yarn test
+
+workflows:
+  build_and_test:
+    jobs:
+      - build
+      - test
