@@ -71,6 +71,6 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "DOTENV_CONFIG_PATH=./src/config/.env.dev ts-node-dev --respawn --debug --clear --rs --transpile-only -r dotenv/config src/index.ts",
-    "test": "DOTENV_CONFIG_PATH=./src/config/.env.test jest --runInBand --detectOpenHandles"
+    "test": "DOTENV_CONFIG_PATH=./src/config/.env.test jest --runInBand --detectOpenHandles --passWithNoTests"
   }
 }
