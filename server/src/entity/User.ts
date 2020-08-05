@@ -7,11 +7,9 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  PrimaryGeneratedColumn,
-  OneToMany
+  PrimaryGeneratedColumn
 } from "typeorm";
 import { Clock } from "./Clock";
-
 @ObjectType()
 @Entity("users")
 export class User extends BaseEntity {
