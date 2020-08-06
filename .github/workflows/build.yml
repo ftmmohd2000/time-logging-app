@@ -14,6 +14,8 @@ jobs:
           node-version: 14.x
       - run: cd server && yarn
       # - run: npm run build --if-present
+      - run: apt install redis-server
+      - run: redis-server&
       - run: cd server && yarn test
         env:
           NODE_ENV: ${{secrets.NODE_ENV}}
